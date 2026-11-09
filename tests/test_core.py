@@ -100,3 +100,9 @@ def test_live_is_locked_without_confirmation(monkeypatch):
     with pytest.raises(SystemExit) as e:
         main(["live", "--ratings", "x.csv"])
     assert "locked" in str(e.value)
+
+
+def test_flat_stake_overrides_kelly():
+    model = ColumnModel({"m": {"a": 0.6, "b": 0.4}})
+    bets = ValueStrategy(model, commission=0.05, min_edge=0.05, flat_stake=7.5).decide("m", {"a": 2.2, "b": 2.0}, 1000)
+    assert bets[0].stake == 7.5
