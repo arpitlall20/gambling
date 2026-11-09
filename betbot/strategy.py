@@ -25,6 +25,7 @@ class ValueStrategy:
     min_odds: float = 1.5
     max_odds: float = 15.0
     max_bets_per_market: int = 1
+    flat_stake: float = 0.0       # if set, stake this amount instead of Kelly
 
     def decide(self, market_id: str, prices: Mapping[str, float], bankroll: float) -> List[BetIntent]:
         probs = self.model.predict(market_id, prices)
@@ -36,7 +37,10 @@ class ValueStrategy:
             ev = expected_value(p, price, self.commission)
             if ev < self.min_edge:
                 continue
-            stake = round_stake(bankroll * kelly_fraction(p, price, self.commission) * self.kelly_multiplier)
+            if self.flat_stake:
+                stake = self.flat_stake
+            else:
+                stake = round_stake(bankroll * kelly_fraction(p, price, self.commission) * self.kelly_multiplier)
             if stake > 0:
                 candidates.append(BetIntent(market_id, sid, price, stake, p, ev))
         candidates.sort(key=lambda b: b.ev_per_dollar, reverse=True)

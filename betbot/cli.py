@@ -13,6 +13,7 @@ def _add_strategy_args(p):
     p.add_argument("--commission", type=float, default=0.08, help="your Betfair commission rate (0.08 = 8%%)")
     p.add_argument("--min-edge", type=float, default=0.05, help="min expected profit per $1 to bet")
     p.add_argument("--kelly", type=float, default=0.25, help="fraction of Kelly stake")
+    p.add_argument("--flat-stake", type=float, default=0.0, help="bet this fixed amount instead of Kelly")
     p.add_argument("--min-odds", type=float, default=1.5)
     p.add_argument("--max-odds", type=float, default=15.0)
     p.add_argument("--max-stake", type=float, default=10.0)
@@ -25,7 +26,7 @@ def _add_strategy_args(p):
 
 def _build(args, model):
     strategy = ValueStrategy(model, commission=args.commission, min_edge=args.min_edge,
-                             kelly_multiplier=args.kelly, min_odds=args.min_odds, max_odds=args.max_odds)
+                             kelly_multiplier=args.kelly, flat_stake=args.flat_stake, min_odds=args.min_odds, max_odds=args.max_odds)
     risk = RiskManager(RiskLimits(args.max_stake, args.max_daily_loss, args.max_exposure,
                                   args.max_bets_per_day, args.min_stake, args.kill_switch))
     return strategy, risk
